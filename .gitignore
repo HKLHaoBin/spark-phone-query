@@ -13,5 +13,7 @@ artifacts/evidence/
 artifacts/*.html
 artifacts/*.log
 !artifacts/.gitkeep
+!artifacts/guangzhou-count.json
+!artifacts/pi-result.json
 
 .DS_Store

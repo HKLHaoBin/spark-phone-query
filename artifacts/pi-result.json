@@ -1,0 +1,11 @@
+{
+  "application": "PhoneAttribution-Pi",
+  "partitions": 4,
+  "points_per_partition": 250000,
+  "total_points": 1000000,
+  "inside_points": 785050,
+  "pi": 3.1402,
+  "seed": 20260917,
+  "master": "spark://127.0.0.1:7077",
+  "completed_at_utc": "2026-09-17T03:47:20.659829+00:00"
+}

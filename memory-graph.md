@@ -40,9 +40,15 @@ src/web/ ──> 浏览器查询界面
 - 集群：`scripts/cluster.sh {start|stop|restart|status}`。
 - 统计：`scripts/run_pipeline.sh`。
 - Pi：`scripts/run_pi.sh`。
-- 截图和报告：`scripts/capture_evidence.sh` 生成 `artifacts/spark-env-config.png`、`artifacts/pi-result.png`、`artifacts/verification.md`。
+- 截图和报告：`scripts/capture_evidence.sh` 生成 `artifacts/spark-env-config.png`、`artifacts/pi-result.png`、`artifacts/verification.md`；`artifacts/phone-query-ui.png` 是查询页面证据。
 - 项目测试：`pytest` 覆盖生成器的字段、行数和非法输入。
 
 ## 最近验证状态
 
-初始图谱建立于项目脚手架阶段。运行真实 Spark 集群、数据统计、Pi、查询接口和截图后，应将结果（时间、数量、Pi 值、worker 数量）补充到本节。
+2026-09-17 UTC 已在真实 Spark standalone 集群上验证：
+
+- Master `ALIVE`，两个 Worker 均 `ALIVE`，每个 Worker 为 2 cores / 1024 MiB。
+- 扫描 1,000,000 条 CSV 记录，`广东 AND 广州` 数量为 `400,000`。
+- Spark Pi 使用 4 partitions、1,000,000 个采样点，结果为 `3.14020000`。
+- `/api/health` 就绪；`/api/statistics/guangzhou`、`/api/records?location=广州&field=city`、空结果和非法字段 `400` 均已验证。
+- 证据 PNG：`artifacts/spark-env-config.png`、`artifacts/pi-result.png`、`artifacts/phone-query-ui.png`；原始记录：`artifacts/verification.md`。

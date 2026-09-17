@@ -88,4 +88,6 @@ curl 'http://127.0.0.1:43123/api/records?location=广州&limit=0'
 
 - `artifacts/spark-env-config.png`：实际 `spark-env.sh` 配置截图。
 - `artifacts/pi-result.png`：实际 Spark Pi 和广州统计结果截图。
+- `artifacts/phone-query-ui.png`：查询页面加载广州结果后的浏览器截图。
+- `artifacts/guangzhou-count.json`、`artifacts/pi-result.json`：机器可读的 Spark 输出。
 - `artifacts/verification.md`：集群状态、统计 JSON、Pi JSON 的原始运行记录。

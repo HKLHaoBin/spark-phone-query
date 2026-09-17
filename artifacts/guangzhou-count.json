@@ -1,0 +1,9 @@
+{
+  "province": "广东",
+  "city": "广州",
+  "count": 400000,
+  "records_scanned": 1000000,
+  "input": "/workspace/data/generated/phone_attribution.csv",
+  "master": "spark://127.0.0.1:7077",
+  "completed_at_utc": "2026-09-17T03:47:06.478802+00:00"
+}
