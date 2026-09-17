@@ -166,10 +166,10 @@ workers = payload.get("workers", [])
 def is_alive(worker):
     return worker.get("alive", worker.get("state") == "ALIVE")
 alive = [worker for worker in workers if is_alive(worker)]
-print(f"master={payload.get(\"status\", \"UNKNOWN\")} url={payload.get(\"url\", \"unknown\")}")
+print(f"master={payload.get('status', 'UNKNOWN')} url={payload.get('url', 'unknown')}")
 for worker in workers:
     state = "ALIVE" if is_alive(worker) else "DEAD"
-    print(f"worker={worker.get(\"id\", \"unknown\")} state={state} cores={worker.get(\"cores\", 0)} memory={worker.get(\"memory\", 0)}")
+    print(f"worker={worker.get('id', 'unknown')} state={state} cores={worker.get('cores', 0)} memory={worker.get('memory', 0)}")
 print(f"workers_alive={len(alive)}")
 if len(alive) < 2:
     raise SystemExit("需要两个存活 worker，当前状态不足。")
