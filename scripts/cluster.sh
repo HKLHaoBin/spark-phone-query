@@ -54,15 +54,23 @@ start_cluster() {
     --cores 2 --memory 1g --port 7079 --webui-port 18082
 
   for _ in $(seq 1 30); do
-    if curl --silent --fail "http://127.0.0.1:18080/json" >/dev/null 2>&1; then
-      echo "Spark master 已启动：$SPARK_MASTER_URL"
-      status_cluster
-      return 0
+    if payload="$(curl --silent --fail "http://127.0.0.1:18080/json" 2>/dev/null)"; then
+      worker_count="$("$PYTHON_BIN" -c '
+import json
+import sys
+payload = json.loads(sys.stdin.read())
+print(sum(1 for worker in payload.get("workers", []) if worker.get("alive")))
+' <<<"$payload")"
+      if [ "$worker_count" -ge 2 ]; then
+        echo "Spark master 已启动：$SPARK_MASTER_URL"
+        status_cluster
+        return 0
+      fi
     fi
     sleep 1
   done
 
-  echo "Spark master 启动超时，请查看 runtime/logs。" >&2
+  echo "Spark master 或 worker 启动超时，请查看 runtime/logs。" >&2
   exit 1
 }
 

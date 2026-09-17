@@ -101,11 +101,13 @@ class SparkStore:
         frame = self.require_frame()
         matching = frame.filter(self.location_condition(location, field))
         total = matching.count()
-        paged = matching if limit == 0 else matching.offset(offset).limit(limit)
-        rows = [
-            {key: value for key, value in row.asDict().items()}
-            for row in paged.collect()
-        ]
+        if limit == 0:
+            selected_rows = matching.collect()
+        else:
+            # DataFrame.offset is not available in every supported Spark
+            # release. Limit before collecting to keep pagination bounded.
+            selected_rows = matching.limit(offset + limit).collect()[offset:]
+        rows = [{key: value for key, value in row.asDict().items()} for row in selected_rows]
         return {
             "location": location.strip(),
             "field": field or "all-attribution-fields",

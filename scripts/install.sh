@@ -10,8 +10,14 @@ if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ ! -d "$ROOT_DIR/.venv" ]; then
-  "$PYTHON_BIN" -m venv "$ROOT_DIR/.venv"
+if [ ! -x "$ROOT_DIR/.venv/bin/python" ] || ! "$ROOT_DIR/.venv/bin/python" -m pip --version >/dev/null 2>&1; then
+  rm -rf "$ROOT_DIR/.venv"
+  if ! "$PYTHON_BIN" -m venv "$ROOT_DIR/.venv"; then
+    echo "系统未提供 ensurepip，改用最新 virtualenv 创建隔离环境。" >&2
+    rm -rf "$ROOT_DIR/.venv"
+    "$PYTHON_BIN" -m pip install --user --break-system-packages --upgrade virtualenv
+    "$PYTHON_BIN" -m virtualenv "$ROOT_DIR/.venv"
+  fi
 fi
 
 "$ROOT_DIR/.venv/bin/python" -m pip install --upgrade pip
