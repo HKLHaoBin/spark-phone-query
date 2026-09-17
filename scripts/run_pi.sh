@@ -17,7 +17,7 @@ export PYSPARK_PYTHON="$PYTHON_BIN"
 export PYSPARK_DRIVER_PYTHON="$PYTHON_BIN"
 export SPARK_MASTER_URL="${SPARK_MASTER_URL:-spark://127.0.0.1:7077}"
 
-if ! curl --silent --fail "http://127.0.0.1:18080/json" >/dev/null 2>&1; then
+if ! curl --silent --fail "http://127.0.0.1:18080/json/" >/dev/null 2>&1; then
   echo "Spark master 未运行，请先执行 ./scripts/cluster.sh start。" >&2
   exit 1
 fi

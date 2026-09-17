@@ -120,7 +120,7 @@ start_cluster() {
       --work-dir "$ROOT_DIR/runtime/workers/worker-2"
 
   for _ in $(seq 1 30); do
-    if payload="$(curl --silent --fail "http://127.0.0.1:18080/json" 2>/dev/null)"; then
+    if payload="$(curl --silent --fail "http://127.0.0.1:18080/json/" 2>/dev/null)"; then
       worker_count="$("$PYTHON_BIN" -c '
 import json
 import sys
@@ -152,7 +152,7 @@ stop_cluster() {
 
 status_cluster() {
   local payload
-  if ! payload="$(curl --silent --fail "http://127.0.0.1:18080/json")"; then
+  if ! payload="$(curl --silent --fail "http://127.0.0.1:18080/json/")"; then
     echo "Spark master 未运行。"
     return 1
   fi
