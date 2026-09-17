@@ -59,7 +59,10 @@ start_cluster() {
 import json
 import sys
 payload = json.loads(sys.stdin.read())
-print(sum(1 for worker in payload.get("workers", []) if worker.get("alive")))
+print(sum(
+    1 for worker in payload.get("workers", [])
+    if worker.get("alive", worker.get("state") == "ALIVE")
+))
 ' <<<"$payload")"
       if [ "$worker_count" -ge 2 ]; then
         echo "Spark master 已启动：$SPARK_MASTER_URL"
@@ -94,10 +97,12 @@ import sys
 
 payload = json.loads(sys.stdin.read())
 workers = payload.get("workers", [])
-alive = [worker for worker in workers if worker.get("alive")]
+def is_alive(worker):
+    return worker.get("alive", worker.get("state") == "ALIVE")
+alive = [worker for worker in workers if is_alive(worker)]
 print(f"master={payload.get(\"status\", \"UNKNOWN\")} url={payload.get(\"url\", \"unknown\")}")
 for worker in workers:
-    state = "ALIVE" if worker.get("alive") else "DEAD"
+    state = "ALIVE" if is_alive(worker) else "DEAD"
     print(f"worker={worker.get(\"id\", \"unknown\")} state={state} cores={worker.get(\"cores\", 0)} memory={worker.get(\"memory\", 0)}")
 print(f"workers_alive={len(alive)}")
 if len(alive) < 2:
