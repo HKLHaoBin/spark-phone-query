@@ -11,7 +11,7 @@ if [ ! -x "$PYTHON_BIN" ]; then
 fi
 
 SPARK_HOME="${SPARK_HOME:-$("$PYTHON_BIN" -c 'from pathlib import Path; import pyspark; print(Path(pyspark.__file__).resolve().parent)' 2>/dev/null)}"
-if [ -z "$SPARK_HOME" ] || [ ! -d "$SPARK_HOME/sbin" ]; then
+if [ -z "$SPARK_HOME" ] || [ ! -x "$SPARK_HOME/bin/spark-class" ]; then
   echo "无法定位 PySpark 的 Spark 发行目录，请重新执行安装。" >&2
   exit 1
 fi
@@ -44,14 +44,80 @@ worker_env() {
     "$@"
 }
 
+start_daemon() {
+  local name="$1"
+  local log_file="$2"
+  shift 2
+  local pid_file="$ROOT_DIR/runtime/pids/$name.pid"
+
+  if [ -f "$pid_file" ] && kill -0 "$(cat "$pid_file")" 2>/dev/null; then
+    echo "$name 已在运行（PID $(cat "$pid_file")）。"
+    return 0
+  fi
+  rm -f "$pid_file"
+  mkdir -p "$(dirname "$log_file")"
+
+  (
+    exec "$@"
+  ) >>"$log_file" 2>&1 &
+  echo $! >"$pid_file"
+  echo "已启动 $name（PID $(cat "$pid_file")）。"
+}
+
+stop_daemon() {
+  local name="$1"
+  local pid_file="$ROOT_DIR/runtime/pids/$name.pid"
+  if [ ! -f "$pid_file" ]; then
+    return 0
+  fi
+
+  local pid
+  pid="$(cat "$pid_file")"
+  if kill -0 "$pid" 2>/dev/null; then
+    kill "$pid" 2>/dev/null || true
+    for _ in $(seq 1 20); do
+      kill -0 "$pid" 2>/dev/null || break
+      sleep 1
+    done
+    if kill -0 "$pid" 2>/dev/null; then
+      kill -9 "$pid" 2>/dev/null || true
+    fi
+  fi
+  rm -f "$pid_file"
+  echo "已停止 $name。"
+}
+
 start_cluster() {
   mkdir -p "$ROOT_DIR/runtime/logs/master" "$ROOT_DIR/runtime/logs/worker-1" "$ROOT_DIR/runtime/logs/worker-2"
 
-  master_env "$SPARK_HOME/sbin/start-master.sh"
-  worker_env worker-1 "$SPARK_HOME/sbin/start-worker.sh" "$SPARK_MASTER_URL" \
-    --cores 2 --memory 1g --port 7078 --webui-port 18081
-  worker_env worker-2 "$SPARK_HOME/sbin/start-worker.sh" "$SPARK_MASTER_URL" \
-    --cores 2 --memory 1g --port 7079 --webui-port 18082
+  start_daemon master "$ROOT_DIR/runtime/logs/master/master.log" \
+    env \
+      SPARK_PID_DIR="$ROOT_DIR/runtime/pids/master" \
+      SPARK_LOG_DIR="$ROOT_DIR/runtime/logs/master" \
+      SPARK_LOCAL_DIRS="$ROOT_DIR/runtime/spark-local/master" \
+      "$SPARK_HOME/bin/spark-class" \
+      org.apache.spark.deploy.master.Master \
+      --host 127.0.0.1 --port 7077 --webui-port 18080
+  start_daemon worker-1 "$ROOT_DIR/runtime/logs/worker-1/worker.log" \
+    env \
+      SPARK_PID_DIR="$ROOT_DIR/runtime/pids/worker-1" \
+      SPARK_LOG_DIR="$ROOT_DIR/runtime/logs/worker-1" \
+      SPARK_WORKER_DIR="$ROOT_DIR/runtime/workers/worker-1" \
+      SPARK_LOCAL_DIRS="$ROOT_DIR/runtime/spark-local/worker-1" \
+      "$SPARK_HOME/bin/spark-class" \
+      org.apache.spark.deploy.worker.Worker \
+      "$SPARK_MASTER_URL" --cores 2 --memory 1g --port 7078 --webui-port 18081 \
+      --work-dir "$ROOT_DIR/runtime/workers/worker-1"
+  start_daemon worker-2 "$ROOT_DIR/runtime/logs/worker-2/worker.log" \
+    env \
+      SPARK_PID_DIR="$ROOT_DIR/runtime/pids/worker-2" \
+      SPARK_LOG_DIR="$ROOT_DIR/runtime/logs/worker-2" \
+      SPARK_WORKER_DIR="$ROOT_DIR/runtime/workers/worker-2" \
+      SPARK_LOCAL_DIRS="$ROOT_DIR/runtime/spark-local/worker-2" \
+      "$SPARK_HOME/bin/spark-class" \
+      org.apache.spark.deploy.worker.Worker \
+      "$SPARK_MASTER_URL" --cores 2 --memory 1g --port 7079 --webui-port 18082 \
+      --work-dir "$ROOT_DIR/runtime/workers/worker-2"
 
   for _ in $(seq 1 30); do
     if payload="$(curl --silent --fail "http://127.0.0.1:18080/json" 2>/dev/null)"; then
@@ -78,9 +144,9 @@ print(sum(
 }
 
 stop_cluster() {
-  worker_env worker-2 "$SPARK_HOME/sbin/stop-worker.sh" || true
-  worker_env worker-1 "$SPARK_HOME/sbin/stop-worker.sh" || true
-  master_env "$SPARK_HOME/sbin/stop-master.sh" || true
+  stop_daemon worker-2
+  stop_daemon worker-1
+  stop_daemon master
   echo "Spark 伪分布式集群已停止。"
 }
 
