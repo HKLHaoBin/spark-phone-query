@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Spark 号码归属地实验台</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">SPARK PSEUDO-DISTRIBUTED LAB</p>
+          <h1>号码归属地实验台</h1>
+          <p class="lede">
+            在 Spark 集群上完成广州号码统计，并按省、市、运营商、区号或邮编查询归属记录。
+          </p>
+        </div>
+        <div class="status-pill" id="cluster-status">
+          <span class="status-dot"></span>
+          <span>正在连接 Spark…</span>
+        </div>
+      </header>
+
+      <section class="metrics" aria-label="统计概览">
+        <article class="metric-card accent">
+          <span class="metric-label">广州匹配数量</span>
+          <strong id="guangzhou-count">—</strong>
+          <span class="metric-note">广东 / 广州精确匹配</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Spark 已加载记录</span>
+          <strong id="records-loaded">—</strong>
+          <span class="metric-note" id="master-label">等待数据源</span>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">查询模式</span>
+          <strong>精确</strong>
+          <span class="metric-note">支持省、市、运营商、区号、邮编</span>
+        </article>
+      </section>
+
+      <section class="panel query-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">ATTRIBUTION SEARCH</p>
+            <h2>查询归属地记录</h2>
+          </div>
+          <span class="hint">输入“广州”试试</span>
+        </div>
+        <form id="query-form">
+          <label class="search-box">
+            <span class="sr-only">归属地</span>
+            <input
+              id="location-input"
+              name="location"
+              value="广州"
+              placeholder="例如：广州、广东、中国移动、020"
+              autocomplete="off"
+              required
+            />
+          </label>
+          <label class="field-select">
+            <span>匹配字段</span>
+            <select id="field-input" name="field">
+              <option value="">全部归属字段</option>
+              <option value="province">省</option>
+              <option value="city">市</option>
+              <option value="operator">运营商</option>
+              <option value="area_code">区号</option>
+              <option value="postal_code">邮编</option>
+            </select>
+          </label>
+          <button type="submit">查询记录</button>
+        </form>
+        <p class="form-error" id="form-error" role="alert"></p>
+      </section>
+
+      <section class="panel results-panel">
+        <div class="panel-heading results-heading">
+          <div>
+            <p class="eyebrow">MATCHED RECORDS</p>
+            <h2 id="results-title">查询结果</h2>
+          </div>
+          <span class="result-count" id="result-count">尚未查询</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>记录 ID</th>
+                <th>号码</th>
+                <th>省</th>
+                <th>市</th>
+                <th>运营商</th>
+                <th>区号</th>
+                <th>邮编</th>
+              </tr>
+            </thead>
+            <tbody id="results-body">
+              <tr class="empty-row">
+                <td colspan="7">输入归属地后，结果会显示在这里。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer" id="table-footer"></div>
+      </section>
+
+      <footer>
+        <span>数据由本地可重复生成器创建</span>
+        <a href="/docs" target="_blank" rel="noreferrer">查看 API 文档 →</a>
+      </footer>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
