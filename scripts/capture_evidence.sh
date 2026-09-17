@@ -5,7 +5,15 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 PYTHON_BIN="${PYTHON_BIN:-$ROOT_DIR/.venv/bin/python}"
-CHROME_BIN="${CHROME_BIN:-$(command -v google-chrome || command -v chromium || true)}"
+if [ -z "${CHROME_BIN:-}" ]; then
+  for candidate in /opt/google/chrome/google-chrome /usr/bin/google-chrome-stable; do
+    if [ -x "$candidate" ]; then
+      CHROME_BIN="$candidate"
+      break
+    fi
+  done
+fi
+CHROME_BIN="${CHROME_BIN:-$(command -v chromium || command -v google-chrome || true)}"
 if [ -z "$CHROME_BIN" ]; then
   echo "找不到 Google Chrome/Chromium，无法截取 PNG 证据。" >&2
   exit 1
