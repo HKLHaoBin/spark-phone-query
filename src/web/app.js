@@ -14,6 +14,15 @@ const formError = document.querySelector("#form-error");
 
 const numberFormat = new Intl.NumberFormat("zh-CN");
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function setStatus(ready, message) {
   statusEl.classList.toggle("ready", ready);
   statusEl.classList.toggle("error", !ready);
@@ -43,13 +52,13 @@ function renderRows(records) {
     .map(
       (record) => `
         <tr>
-          <td class="mono">${record.record_id ?? "—"}</td>
-          <td class="mono">${record.phone_number ?? "—"}</td>
-          <td>${record.province ?? "—"}</td>
-          <td>${record.city ?? "—"}</td>
-          <td>${record.operator ?? "—"}</td>
-          <td class="mono">${record.area_code ?? "—"}</td>
-          <td class="mono">${record.postal_code ?? "—"}</td>
+          <td class="mono">${escapeHtml(record.record_id ?? "—")}</td>
+          <td class="mono">${escapeHtml(record.phone_number ?? "—")}</td>
+          <td>${escapeHtml(record.province ?? "—")}</td>
+          <td>${escapeHtml(record.city ?? "—")}</td>
+          <td>${escapeHtml(record.operator ?? "—")}</td>
+          <td class="mono">${escapeHtml(record.area_code ?? "—")}</td>
+          <td class="mono">${escapeHtml(record.postal_code ?? "—")}</td>
         </tr>`
     )
     .join("");
@@ -69,7 +78,7 @@ async function loadOverview() {
   if (!health.ready) {
     countEl.textContent = "—";
     showError(health.error || "Spark 数据源未就绪，请先生成数据并启动集群。");
-    return;
+    return false;
   }
 
   const statisticsResponse = await fetch("/api/statistics/guangzhou");
@@ -78,6 +87,7 @@ async function loadOverview() {
   }
   const statistics = await statisticsResponse.json();
   countEl.textContent = numberFormat.format(statistics.count);
+  return true;
 }
 
 async function search(event) {
@@ -119,7 +129,11 @@ async function search(event) {
 
 form.addEventListener("submit", search);
 
-loadOverview().catch((error) => {
-  setStatus(false, "服务连接失败");
-  showError(error.message);
-});
+loadOverview()
+  .then((ready) => {
+    if (ready) form.requestSubmit();
+  })
+  .catch((error) => {
+    setStatus(false, "服务连接失败");
+    showError(error.message);
+  });
