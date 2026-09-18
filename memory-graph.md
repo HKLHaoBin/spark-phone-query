@@ -23,6 +23,9 @@ scripts/run_pi.sh ────────> src/spark_jobs/pi.py ─────
 src/app/main.py ──> Spark DataFrame 缓存 ──> /api/statistics/guangzhou
                                       └──> /api/records?location=...
 src/web/ ──> 浏览器查询界面
+
+AGENT.md ──> 后续 Agent 的约束、验收和线性 Git 流程
+SKILL.md ──> 本项目的环境排障记录和迁移技能
 ```
 
 ## 关键实体和不变量
@@ -52,3 +55,5 @@ src/web/ ──> 浏览器查询界面
 - Spark Pi 使用 4 partitions、1,000,000 个采样点，结果为 `3.14020000`。
 - `/api/health` 就绪；`/api/statistics/guangzhou`、`/api/records?location=广州&field=city`、空结果和非法字段 `400` 均已验证。
 - 证据 PNG：`artifacts/spark-env-config.png`、`artifacts/pi-result.png`、`artifacts/phone-query-ui.png`；原始记录：`artifacts/verification.md`。
+- 交接文档：`README.md`（用户）、`AGENT.md`（Agent）、`SKILL.md`（项目技能和问题记录）。
+- 当前远程地址已核实为 Cursor Origin endpoint，不是 GitHub；若要完成 GitHub 上传，必须先提供/配置真实 GitHub remote，再通过 `git ls-remote` 验证。

@@ -91,3 +91,43 @@ curl 'http://127.0.0.1:43123/api/records?location=广州&limit=0'
 - `artifacts/phone-query-ui.png`：查询页面加载广州结果后的浏览器截图。
 - `artifacts/guangzhou-count.json`、`artifacts/pi-result.json`：机器可读的 Spark 输出。
 - `artifacts/verification.md`：集群状态、统计 JSON、Pi JSON 的原始运行记录。
+
+## 项目交接文档
+
+- [`AGENT.md`](AGENT.md)：给后续 Agent 的项目说明、不可破坏的约束、启动和验收流程。
+- [`SKILL.md`](SKILL.md)：本项目执行过程中遇到的问题、解决方案、已验证的环境差异和必须掌握的技能。
+- [`memory-graph.md`](memory-graph.md)：项目架构、实体、不变量和最新验证事实。
+
+后续换环境时，优先按下面顺序恢复：
+
+```bash
+cd /workspace
+git fetch origin cursor/spark-phone-query-5bd1
+git switch cursor/spark-phone-query-5bd1
+./scripts/install.sh
+./scripts/cluster.sh start
+./scripts/cluster.sh status
+```
+
+数据 CSV 和 `runtime/` 不进入 Git；换环境后重新执行 `./scripts/run_pipeline.sh` 生成数据。截图、统计 JSON 和 Pi JSON 已作为小型验证证据保留。
+
+## 线性历史与协作约束
+
+当前功能分支应只追加正常提交，不使用 `git rebase`、`git commit --amend` 或强制推送。完成一个逻辑变更后执行：
+
+```bash
+git add <changed-files>
+git commit -m "<描述变更>"
+git push -u origin cursor/spark-phone-query-5bd1
+```
+
+不要把功能提交到 `main`，也不要修改或强制推送 `origin/main`。提交前检查：
+
+```bash
+git status --short --branch
+git log --oneline --decorate --graph -12
+```
+
+## 当前已验证结果
+
+在 Java 21、Python 3.12、PySpark 4.2.0 环境中，Master 和两个 Worker 均为 `ALIVE`；1,000,000 条记录中 `广东 / 广州` 为 `400,000` 条，Spark Pi 结果为 `3.14020000`。API 的健康、统计、匹配、空结果和非法字段场景均已验证。
