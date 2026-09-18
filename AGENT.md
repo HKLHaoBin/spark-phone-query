@@ -15,7 +15,7 @@
 ## 2. 当前状态和关键事实
 
 - 当前功能分支：`cursor/spark-phone-query-5bd1`。
-- 当前远程已验证为 Cursor Origin endpoint，不是 `github.com` URL；在没有 GitHub 仓库 URL 和授权凭据前，不得声称已经上传 GitHub。
+- 当前 `origin` 已验证为 `https://github.com/HKLHaoBin/spark-phone-query.git`，功能分支已推送到 GitHub；后续仍须用 `git ls-remote origin` 验证远程状态。
 - 当前环境已验证：Python 3.12、Java 21、PySpark 4.2.0、FastAPI 0.141.1、Uvicorn 0.53.0。
 - 默认数据量：1,000,000 条；CSV 在 `data/generated/`，被 `.gitignore` 忽略。
 - 固定首条记录：`115036,1477799,广东,广州,中国移动,020,510000`。

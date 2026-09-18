@@ -29,7 +29,7 @@
 ### Git 迁移和线性历史
 
 - 能在功能分支上追加提交并推送，不能用 rebase/amend/force push 改写历史。
-- 推送前确认远程 URL 和权限；`origin.cursor.com` 不是 GitHub，不能混淆两者。
+- 推送前确认远程 URL 和权限；历史上本项目使用过 `origin.cursor.com`，当前已迁移到 `github.com/HKLHaoBin/spark-phone-query.git`，不能混淆两者。
 - 能通过 `git ls-remote` 证明目标远程真实存在且可访问。
 - 能在换环境时用分支名、提交 SHA、README、AGENT 和本文件恢复工作上下文。
 

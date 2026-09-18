@@ -56,4 +56,4 @@ SKILL.md ──> 本项目的环境排障记录和迁移技能
 - `/api/health` 就绪；`/api/statistics/guangzhou`、`/api/records?location=广州&field=city`、空结果和非法字段 `400` 均已验证。
 - 证据 PNG：`artifacts/spark-env-config.png`、`artifacts/pi-result.png`、`artifacts/phone-query-ui.png`；原始记录：`artifacts/verification.md`。
 - 交接文档：`README.md`（用户）、`AGENT.md`（Agent）、`SKILL.md`（项目技能和问题记录）。
-- 当前远程地址已核实为 Cursor Origin endpoint，不是 GitHub；若要完成 GitHub 上传，必须先提供/配置真实 GitHub remote，再通过 `git ls-remote` 验证。
+- 2026-09-18 UTC 已将 `origin` 切换为 `https://github.com/HKLHaoBin/spark-phone-query.git`，并将 `cursor/spark-phone-query-5bd1` 推送到 GitHub；远程提交已用 `git ls-remote` 复核。
